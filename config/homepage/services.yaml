@@ -1,0 +1,56 @@
+- Medios y Entretenimiento:
+    - RomM:
+        icon: romm.png
+        href: "http://192.168.3.44:8080"
+        description: "Catálogo de Juegos y Emuladores"
+        server: local-docker
+        container: romm
+        showStats: true
+    - Kavita:
+        icon: kavita.png
+        href: "http://192.168.3.44:5000"
+        description: "Mangas, Cómics y Libros"
+        server: local-docker
+        container: lernae-kavita
+        showStats: true
+    - Suwayomi (Descargador):
+        icon: suwayomi.png
+        href: "http://192.168.3.44:4567"
+        description: "Descarga automática de mangas a Drive"
+        server: local-docker
+        container: lernae-suwayomi
+        showStats: true
+
+- Automatización (Libros y Novelas):
+    - Readarr:
+        icon: readarr.png
+        href: "http://192.168.3.44:8787"
+        description: "Buscador y Gestor de Libros y Novelas"
+        server: local-docker
+        container: lernae-readarr
+        showStats: true
+    - Prowlarr:
+        icon: prowlarr.png
+        href: "http://192.168.3.44:9696"
+        description: "Indexador de fuentes y repositorios"
+        server: local-docker
+        container: lernae-prowlarr
+        showStats: true
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: "http://192.168.3.44:8085"
+        description: "Descargador de staging local"
+        server: local-docker
+        container: lernae-qbittorrent
+        showStats: true
+
+- Ecosistema y Conectividad:
+    - Google Drive (Lernae):
+        icon: google-drive.png
+        href: "https://drive.google.com/drive/u/0/folders"
+        description: "Carpeta madre en la nube"
+    - Tailscale Mesh:
+        icon: tailscale.png
+        href: "https://login.tailscale.com/admin/machines"
+        description: "Red privada (IP: 100.74.205.42)"
+

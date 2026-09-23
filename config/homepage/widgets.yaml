@@ -1,0 +1,21 @@
+- greeting:
+    text_size: 2xl
+    text: "Hydra Hub"
+
+- openmeteo:
+    label: Santiago
+    latitude: -33.4569
+    longitude: -70.6483
+    timezone: America/Santiago
+    units: metric
+
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      dateStyle: medium
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /app/config

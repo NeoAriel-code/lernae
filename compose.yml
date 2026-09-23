@@ -1,0 +1,87 @@
+services:
+  lernae-kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: lernae-kavita
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - TZ=America/Santiago
+    volumes:
+      - /home/neoariel/Lernae/data/kavita:/kavita/config
+      - /home/neoariel/Lernae/media/Mangas:/manga:ro
+      - /home/neoariel/Lernae/media/Libros:/books:ro
+      - /home/neoariel/Lernae/media/Novelas:/novelas:ro
+
+  lernae-homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: lernae-homepage
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=America/Santiago
+      - HOMEPAGE_ALLOWED_HOSTS=*
+    volumes:
+      - /home/neoariel/Lernae/config/homepage:/app/config
+      - /home/neoariel/Lernae/config/homepage/images:/app/public/images
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  lernae-suwayomi:
+    image: ghcr.io/suwayomi/tachidesk:latest
+    container_name: lernae-suwayomi
+    restart: unless-stopped
+    ports:
+      - "4567:4567"
+    environment:
+      - TZ=America/Santiago
+    volumes:
+      - /home/neoariel/Lernae/data/suwayomi:/home/suwayomi/.local/share/Tachidesk
+      - /home/neoariel/Lernae/media/Mangas:/downloads
+
+  lernae-qbittorrent:
+    image: ghcr.io/linuxserver/qbittorrent:latest
+    container_name: lernae-qbittorrent
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+      - "6881:6881"
+      - "6881:6881/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+      - WEBUI_PORT=8085
+      - TORRENTING_PORT=6881
+    volumes:
+      - /home/neoariel/Lernae/data/qbittorrent:/config
+      - /home/neoariel/Lernae/downloads:/downloads
+
+  lernae-prowlarr:
+    image: ghcr.io/linuxserver/prowlarr:latest
+    container_name: lernae-prowlarr
+    restart: unless-stopped
+    ports:
+      - "9696:9696"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+    volumes:
+      - /home/neoariel/Lernae/data/prowlarr:/config
+
+  lernae-readarr:
+    image: lscr.io/linuxserver/readarr:0.4.18-develop
+    container_name: lernae-readarr
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+    volumes:
+      - /home/neoariel/Lernae/data/readarr:/config
+      - /home/neoariel/Lernae/downloads:/downloads
+      - /home/neoariel/Lernae/media/Libros:/books
+      - /home/neoariel/Lernae/media/Novelas:/novelas

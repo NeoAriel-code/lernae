@@ -1,0 +1,7 @@
+# Lernae Git Ignore
+media/
+downloads/
+rclone-cache/
+logs/
+data/
+config/homepage/logs/

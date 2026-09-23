@@ -1,0 +1,21 @@
+title: Lernae
+theme: dark
+color: slate
+cardBlur: md
+background:
+  image: /images/background.jpg
+  opacity: 75
+headerStyle: clean
+favicon: https://cdn-icons-png.flaticon.com/512/1000/1000946.png
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+  showSearchSuggestions: true
+  provider: google
+layout:
+  Medios y Entretenimiento:
+    style: row
+    columns: 2
+  Ecosistema y Conectividad:
+    style: row
+    columns: 2

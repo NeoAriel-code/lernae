@@ -1,0 +1,13 @@
+- Accesos Rápidos:
+    - Google Drive:
+        - abbr: GD
+          icon: google-drive.png
+          href: https://drive.google.com/drive/u/0/home
+    - Obsidian:
+        - abbr: OB
+          icon: obsidian.png
+          href: obsidian://
+    - Tailscale:
+        - abbr: TS
+          icon: tailscale.png
+          href: https://login.tailscale.com/admin/machines
