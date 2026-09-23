@@ -1,79 +1,179 @@
-/* Hydra Hub - Pure Crystal Glassmorphism */
+/* ==========================================================================
+   Lernae Visual Identity & Dashboard Theme
+   Concept: "One library. Your universe."
+   Palette: Nebula White, Lernae Violet, Arc Purple, Deep Azure, Midnight Indigo
+   ========================================================================== */
 
 :root {
+  /* Core brand palette */
+  --lernae-white:     #EDE8FF;
+  --lernae-violet:    #7C3AED;
+  --lernae-purple:    #A855F7;
+  --lernae-azure:     #38BDF8;
+  --lernae-bg:        #0B0623;
+  --lernae-surface:   #1E1140;
+
+  /* Transparencies & Glassmorphism */
+  --lernae-glass-bg:       rgba(11, 6, 35, 0.72);
+  --lernae-glass-surface:  rgba(30, 17, 64, 0.55);
+  --lernae-glass-border:   rgba(124, 58, 237, 0.25);
+  --lernae-border-hover:   rgba(168, 85, 247, 0.55);
+  --lernae-glow-hover:     0 0 20px rgba(124, 58, 237, 0.35);
+
+  /* Status Colors */
+  --lernae-success:   #34D399;
+  --lernae-warning:   #FBBF24;
+  --lernae-danger:    #F87171;
+  --lernae-muted:     rgba(237, 232, 255, 0.65);
+
+  /* Area Accents */
+  --lernae-retro:     #A855F7;
+  --lernae-media:     #38BDF8;
+  --lernae-books:     #818CF8;
+  --lernae-games:     #7C3AED;
+  --lernae-infra:     #6366F1;
+
   color-scheme: dark;
 }
 
+/* Base Body & Layout */
 body, #page_wrapper {
-  background: url("/images/background.jpg") no-repeat center center fixed !important;
+  background: radial-gradient(circle at 50% -10%, rgba(124, 58, 237, 0.22) 0%, transparent 55%),
+              radial-gradient(circle at 100% 40%, rgba(56, 189, 248, 0.09) 0%, transparent 45%),
+              radial-gradient(circle at 0% 90%, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
+              url("/images/background.jpg") no-repeat center center fixed !important;
   background-size: cover !important;
+  background-color: var(--lernae-bg) !important;
   color-scheme: dark !important;
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, sans-serif !important;
+  color: var(--lernae-white) !important;
 }
 
-/* Oscurecedor sutil para que el texto y los iconos contrasten perfectamente sobre el wallpaper */
 #inner_wrapper {
-  background: rgba(10, 15, 26, 0.45) !important;
+  background: rgba(11, 6, 35, 0.45) !important;
   backdrop-filter: none !important;
   min-height: 100vh;
 }
 
-/* Tarjetas efecto cristal / frosted glass */
-.service-card, .bookmark-card, [class*="card"] {
-  background: rgba(18, 24, 38, 0.42) !important;
-  backdrop-filter: blur(20px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2) !important;
-  border-radius: 14px !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  forced-color-adjust: none !important;
-}
-
-.service-card:hover, .bookmark-card:hover {
-  background: rgba(30, 42, 68, 0.58) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  transform: translateY(-4px) scale(1.008) !important;
-  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 0 24px rgba(99, 102, 241, 0.3), inset 0 1px 2px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Header con efecto cristal */
+/* Header & Information Widgets */
 #information-widgets {
-  background: rgba(18, 24, 38, 0.42) !important;
-  backdrop-filter: blur(20px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  background: var(--lernae-glass-bg) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
   border-radius: 16px !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2) !important;
-  padding: 12px 24px !important;
+  border: 1px solid var(--lernae-glass-border) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(237, 232, 255, 0.08) !important;
+  padding: 14px 24px !important;
   margin-top: 1.5rem !important;
-  forced-color-adjust: none !important;
 }
 
-/* Títulos con contraste limpio */
-h2, .group-header {
+/* Greeting with Brand Emblem */
+[class*="greeting"], .greeting {
+  display: flex !important;
+  align-items: center !important;
   font-weight: 700 !important;
-  letter-spacing: 0.03em !important;
-  color: #ffffff !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8) !important;
-  margin-top: 1.5rem !important;
+  letter-spacing: -0.01em !important;
+  color: var(--lernae-white) !important;
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+}
+
+[class*="greeting"]::before, .greeting::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  margin-right: 12px !important;
+  background: url("/images/lernae/favicon-64.png") no-repeat center center !important;
+  background-size: contain !important;
+  filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.6)) !important;
+}
+
+/* Subtle Tagline Injection */
+[class*="greeting"]::after {
+  content: "One library. Your universe." !important;
+  display: block !important;
+  font-size: 0.72rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--lernae-muted) !important;
+  margin-left: 14px !important;
+  padding-left: 14px !important;
+  border-left: 1px solid rgba(124, 58, 237, 0.35) !important;
+  text-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+  [class*="greeting"]::after {
+    display: none !important;
+  }
+}
+
+/* Section Titles */
+h2, .group-header {
+  font-weight: 600 !important;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.02em !important;
+  color: var(--lernae-white) !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7) !important;
+  margin-top: 1.75rem !important;
   padding-left: 4px;
 }
 
-/* Scrollbar estilizada */
+/* Service & Bookmark Cards */
+.service-card, .bookmark-card, [class*="card"] {
+  background: var(--lernae-glass-bg) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1px solid var(--lernae-glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 28px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(237, 232, 255, 0.08) !important;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+}
+
+.service-card:hover, .bookmark-card:hover {
+  background: var(--lernae-glass-surface) !important;
+  border-color: var(--lernae-border-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6), var(--lernae-glow-hover), inset 0 1px 2px 0 rgba(237, 232, 255, 0.15) !important;
+}
+
+/* Card Titles & Descriptions */
+.service-title, .bookmark-title, [class*="service-title"] {
+  color: var(--lernae-white) !important;
+  font-weight: 600 !important;
+}
+
+.service-description, [class*="service-description"] {
+  color: var(--lernae-muted) !important;
+  font-size: 0.82rem !important;
+}
+
+/* Status Indicators */
+[class*="status-badge"], [class*="indicator"] {
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.03em !important;
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(10, 15, 26, 0.6);
+  background: var(--lernae-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(124, 58, 237, 0.35);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
+  background: var(--lernae-purple);
 }

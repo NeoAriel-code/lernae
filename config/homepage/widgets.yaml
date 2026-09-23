@@ -1,6 +1,6 @@
 - greeting:
     text_size: 2xl
-    text: "Hydra Hub"
+    text: "Lernae"
 
 - openmeteo:
     label: Santiago

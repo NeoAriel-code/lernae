@@ -4,9 +4,9 @@ color: slate
 cardBlur: md
 background:
   image: /images/background.jpg
-  opacity: 75
+  opacity: 85
 headerStyle: clean
-favicon: https://cdn-icons-png.flaticon.com/512/1000/1000946.png
+favicon: /images/lernae/favicon-32.png
 quicklaunch:
   searchDescriptions: true
   hideInternetSearch: false
@@ -16,6 +16,9 @@ layout:
   Medios y Entretenimiento:
     style: row
     columns: 2
+  Automatización (Libros y Novelas):
+    style: row
+    columns: 3
   Ecosistema y Conectividad:
     style: row
     columns: 2
