@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lernae.local/schemas/inventory-manifest.schema.json",
+  "title": "Lernae Inventory Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "assets"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "work", "edition", "total_size_bytes", "parts", "locations"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "work": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title"],
+            "properties": {
+              "title": {"type": "string", "minLength": 1},
+              "external_ids": {"type": "object", "additionalProperties": {"type": "string"}}
+            }
+          },
+          "edition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["platform", "format"],
+            "properties": {
+              "platform": {"type": "string", "minLength": 1},
+              "format": {"type": "string", "minLength": 1}
+            }
+          },
+          "total_size_bytes": {"type": "integer", "minimum": 1},
+          "parts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["role", "filename", "size_bytes"],
+              "properties": {
+                "part_index": {"type": ["integer", "null"], "minimum": 1},
+                "role": {"type": "string", "minLength": 1},
+                "filename": {"type": "string", "minLength": 1},
+                "size_bytes": {"type": "integer", "minimum": 1}
+              }
+            }
+          },
+          "locations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["class", "provider", "locator"],
+              "properties": {
+                "class": {"type": "string", "enum": ["archive", "local_cache", "library"]},
+                "provider": {"type": "string", "minLength": 1},
+                "locator": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

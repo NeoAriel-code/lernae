@@ -5,3 +5,8 @@ rclone-cache/
 logs/
 data/
 config/homepage/logs/
+
+# Generated development and build outputs
+node_modules/
+apps/web/dist/
+coverage/

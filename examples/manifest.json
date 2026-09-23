@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "id": "soulcalibur2-gamecube",
+      "work": {
+        "title": "Soulcalibur II",
+        "external_ids": {}
+      },
+      "edition": {
+        "platform": "gamecube",
+        "format": "disc_image"
+      },
+      "total_size_bytes": 1450000000,
+      "parts": [
+        {
+          "part_index": 1,
+          "role": "rom",
+          "filename": "Soulcalibur II.iso",
+          "size_bytes": 1450000000
+        }
+      ],
+      "locations": [
+        {
+          "class": "archive",
+          "provider": "rclone",
+          "locator": "gdrive:games/gamecube/Soulcalibur II.iso"
+        }
+      ]
+    }
+  ]
+}

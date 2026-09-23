@@ -1,0 +1,25 @@
+# Foundation v0.2 Checklist
+
+- [x] Product definition
+- [x] North Star and UX principles
+- [x] Core architecture
+- [x] Server/Agent boundary
+- [x] Capability-based integration model
+- [x] Storage lifecycle rules
+- [x] Atomic staging / interrupted-transfer rules
+- [x] Core data model
+- [x] Multi-part Asset model
+- [x] Personal-state model
+- [x] Soulcalibur MVP acceptance test
+- [x] Local inventory manifest baseline
+- [x] Wheel of Time second proof
+- [x] Evangelion third proof
+- [x] Phased roadmap
+- [x] Contribution/agent rules
+- [x] Initial ADRs
+- [x] Independent Antigravity audit completed
+- [x] Foundation docs revised from audit
+- [ ] Phase 0 Codex implementation prompt approved
+- [ ] Repository skeleton implemented
+- [ ] CI green
+- [ ] Phase 1 task breakdown approved
