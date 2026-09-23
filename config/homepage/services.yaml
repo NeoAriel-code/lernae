@@ -1,4 +1,4 @@
-- Medios y Entretenimiento:
+- Bibliotecas:
     - RomM:
         icon: romm.png
         href: "http://192.168.3.44:8080"
@@ -21,7 +21,7 @@
         container: lernae-suwayomi
         showStats: true
 
-- Automatización (Libros y Novelas):
+- Automatización:
     - Readarr:
         icon: readarr.png
         href: "http://192.168.3.44:8787"
@@ -44,7 +44,7 @@
         container: lernae-qbittorrent
         showStats: true
 
-- Ecosistema y Conectividad:
+- Infraestructura:
     - Google Drive (Lernae):
         icon: google-drive.png
         href: "https://drive.google.com/drive/u/0/folders"

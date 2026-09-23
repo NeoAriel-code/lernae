@@ -67,58 +67,95 @@ body, #page_wrapper {
   margin-top: 1.5rem !important;
 }
 
-/* Greeting with Brand Emblem */
-[class*="greeting"], .greeting {
-  display: flex !important;
+/* ==========================================================================
+   Header Brand Lockup & Tagline
+   Composition:
+   [MARK 38px]  Lernae
+                ONE LIBRARY. YOUR UNIVERSE.
+   ========================================================================== */
+[class*="greeting"], .greeting, .information-widget-greeting {
+  display: inline-grid !important;
+  grid-template-columns: auto auto !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 12px !important;
+  row-gap: 1px !important;
   align-items: center !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.01em !important;
-  color: var(--lernae-white) !important;
-  text-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+  margin-right: 32px !important;
 }
 
-[class*="greeting"]::before, .greeting::before {
+[class*="greeting"]::before, .greeting::before, .information-widget-greeting::before {
   content: "" !important;
-  display: inline-block !important;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  margin-right: 12px !important;
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  align-self: center !important;
+  justify-self: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
   background: url("/images/lernae/favicon-64.png") no-repeat center center !important;
   background-size: contain !important;
-  filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.6)) !important;
+  filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.55)) !important;
+  margin: 0 !important;
 }
 
-/* Subtle Tagline Injection */
-[class*="greeting"]::after {
+[class*="greeting"] span, .greeting span, .information-widget-greeting span {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: end !important;
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--lernae-white) !important;
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Subtle Tagline: "One library. Your universe." */
+[class*="greeting"]::after, .greeting::after, .information-widget-greeting::after {
   content: "One library. Your universe." !important;
-  display: block !important;
-  font-size: 0.72rem !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.06em !important;
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  align-self: start !important;
+  font-size: 0.74rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.025em !important;
   text-transform: uppercase !important;
-  color: var(--lernae-muted) !important;
-  margin-left: 14px !important;
-  padding-left: 14px !important;
-  border-left: 1px solid rgba(124, 58, 237, 0.35) !important;
+  color: rgba(237, 232, 255, 0.78) !important;
+  line-height: 1.2 !important;
+  margin: 2px 0 0 0 !important;
+  padding: 0 !important;
+  border-left: none !important;
   text-shadow: none !important;
+  white-space: nowrap !important;
 }
 
-@media (max-width: 768px) {
-  [class*="greeting"]::after {
-    display: none !important;
+@media (max-width: 640px) {
+  [class*="greeting"], .greeting, .information-widget-greeting {
+    margin-right: 12px !important;
+  }
+  [class*="greeting"]::after, .greeting::after, .information-widget-greeting::after {
+    font-size: 0.65rem !important;
   }
 }
 
-/* Section Titles */
-h2, .group-header {
+/* Section Titles & Vertical Density (~15% reduction between sections) */
+h2, .group-header, .service-group-name {
   font-weight: 600 !important;
   font-size: 1.15rem !important;
   letter-spacing: 0.02em !important;
   color: var(--lernae-white) !important;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7) !important;
-  margin-top: 1.75rem !important;
+  margin-top: 1.45rem !important;
+  margin-bottom: 0.35rem !important;
   padding-left: 4px;
+}
+
+/* Maintain generous separation after header for first section */
+.services-group:first-child h2,
+.services-group:first-of-type h2 {
+  margin-top: 1.85rem !important;
 }
 
 /* Service & Bookmark Cards */

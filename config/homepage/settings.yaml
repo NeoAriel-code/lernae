@@ -13,12 +13,12 @@ quicklaunch:
   showSearchSuggestions: true
   provider: google
 layout:
-  Medios y Entretenimiento:
+  Bibliotecas:
     style: row
     columns: 2
-  Automatización (Libros y Novelas):
+  Automatización:
     style: row
     columns: 3
-  Ecosistema y Conectividad:
+  Infraestructura:
     style: row
     columns: 2
