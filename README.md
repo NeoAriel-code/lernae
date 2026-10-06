@@ -2,24 +2,22 @@
 
 > One library. Your universe.
 
-Lernae is a self-hosted personal library layer that brings games, models, media and books together while keeping heavy assets where they belong until they're needed.
+Lernae es un proyecto de biblioteca personal autoalojada para buscar, consumir y seguir juegos, vídeo, libros y audio desde una sola experiencia, con proveedores especializados reemplazables.
 
 ---
 
-## Current Stack
+## Estado actual: Phase 0
 
-The current running infrastructure orchestrates the following services:
+Este repositorio contiene la base técnica, no una aplicación operativa ni el primer flujo completo del MVP.
 
-| Service | Container | Port | Role | Storage / Mount |
-| :--- | :--- | :--- | :--- | :--- |
-| **Homepage** | `lernae-homepage` | `3000` | Unified central dashboard | Local config & brand assets |
-| **RomM** | `romm` | `8080` | Retro and modern gaming collection & emulation | Google Drive `/ROMs` |
-| **Kavita** | `lernae-kavita` | `5000` | Manga, comics, light novels & book reader | Google Drive `/Mangas`, `/Libros`, `/Novelas` |
-| **Suwayomi** | `lernae-suwayomi` | `4567` | On-demand manga extractor & downloader | Google Drive `/Mangas` (direct CBZ) |
-| **Readarr** | `lernae-readarr` | `8787` | On-demand book & light novel manager | Google Drive `/Libros`, `/Novelas` |
-| **Prowlarr** | `lernae-prowlarr` | `9696` | Indexer manager (Nyaa.si, etc.) | Internal config DB |
-| **qBittorrent** | `lernae-qbittorrent` | `8085` | Local staging download client | Local NVMe `/downloads` |
-| **Storage Mount** | `lernae-drive.service` | — | rclone FUSE mount with VFS caching | Google Drive `Lernae/` → `/home/neoariel/Lernae/media` |
+| Componente | Estado en esta versión |
+| :--- | :--- |
+| **Web** | Página estática React/TypeScript con Vite, sin conexión al backend. |
+| **Server y Agent** | Placeholders Go compilables; registran un mensaje y terminan, sin iniciar servicios. |
+| **Contratos** | Tipos de dominio, capacidades de proveedores y comandos tipados del Agent, sin transporte ni ejecución. |
+| **Inventario** | Esquema y ejemplo de manifiesto JSON; las comprobaciones solo validan su sintaxis. |
+
+La búsqueda, adquisición, restauración, lanzamiento y persistencia descritos en los documentos de producto son objetivos, no funcionalidades disponibles. La configuración heredada de Homepage y sus recursos visuales no demuestran una integración operativa de Lernae.
 
 ---
 
@@ -56,23 +54,17 @@ The Foundation documents define the product boundaries and architecture before i
 - `docs/ARCHITECTURE.md` — system responsibilities and boundaries
 - `docs/DATA_MODEL.md` — core entities and relationships
 - `docs/MVP.md` — first product slice
-- `docs/ROADMAP.md` — staged delivery plan
 - `docs/CONTRIBUTING.md` and `AGENTS.md` — contribution and agent rules
-- `docs/ADR/` — accepted architecture decisions
-- `docs/AUDIT_DECISIONS.md` — accepted audit findings
+- `docs/ADR/` — architecture decisions
 - `docs/MANIFEST.md`, `schemas/`, and `examples/` — inventory manifest contract
-- `ANTIGRAVITY_AUDIT_PROMPT.md` and `FOUNDATION_CHECKLIST.md` — audit record and foundation checklist
-- `docs/PHASE_0_REPORT.md` — delivered scope, limitations, and verification
 
-The existing Homepage-based dashboard remains a separate system dashboard and is preserved as-is. It is not the React application frontend.
+### Documentación local
+
+Los planes, informes de fase, auditorías, prompts y notas de trabajo se conservan localmente, fuera de Git, según `.gitignore`. No forman parte de la documentación pública ni son necesarios para seguir este README.
 
 ### Product principle
 
 A user should be able to search for a title, choose the version or medium, and take a human action such as **PLAY**, **WATCH**, **READ**, or **LISTEN**. Lernae is intended to coordinate availability, storage, preparation, launch, and personal-state updates behind that action. It complements specialist software rather than replacing tools such as RomM, Jellyfin, Kavita, media managers, or emulators.
-
-### Current status
-
-**Foundation / pre-implementation.** The repository now has buildable technical scaffolds, but no operational Server, Agent, or product frontend features. The existing personal infrastructure remains a separate reference environment.
 
 ## Developer setup
 
@@ -81,7 +73,6 @@ A user should be able to search for a title, choose the version or medium, and t
 - Go 1.27 or later
 - Node.js 22.12 or later and npm
 - Python 3 (used only to check JSON syntax)
-- Docker Compose v2 only if running the existing infrastructure
 
 `make help` lists all Foundation commands. From the repository root:
 
@@ -96,25 +87,15 @@ make build      # compile Go scaffolds and build the Web application
 
 The Web development page is not connected to a Server or Agent. The Go commands under `cmd/server` and `cmd/agent` are buildable placeholders and exit after identifying themselves as scaffolds; neither is an operational service yet.
 
-### Existing Homepage infrastructure
+### Configuración y datos de ejecución
 
-The existing Homepage dashboard and supporting Compose configuration are independent from the Phase 0 application shell. To start only Homepage with the existing Compose file:
+Phase 0 no crea configuración de la aplicación, una base de datos SQLite ni un socket del Agent; todavía no hay rutas de base de datos o socket que configurar. Los directorios de datos de ejecución son locales y están ignorados por Git. La configuración heredada bajo `config/homepage/` es independiente del frontend React.
 
-```sh
-docker compose up -d lernae-homepage
-```
+## Límites de Phase 0
 
-Homepage is available at `http://localhost:3000`. The existing service configuration remains in `compose.yml` and `config/homepage/`; Phase 0 does not replace, merge, or reconfigure it.
+Esta base técnica no implementa el primer flujo completo: no hay API HTTP, inicialización SQLite ni migraciones, sistema persistente de jobs, parser ejecutable del manifiesto, transporte UDS Server–Agent, transferencias, restauración, lanzamiento ni panel de salud Web. El esquema y el manifiesto de ejemplo son artefactos documentales; los checks de Phase 0 solo confirman que ambos son JSON sintácticamente válido.
 
-### Configuration and runtime data
-
-Phase 0 does not create application configuration, a SQLite database, or an Agent socket. There is no database or socket path to configure yet. The current Homepage configuration remains under `config/homepage/`. Runtime data directories are local and ignored by Git; do not copy them into the application repository.
-
-## Phase 0 boundary
-
-This is an infrastructure scaffold, not the first vertical slice. There is no HTTP API, SQLite initialization or migrations, persistent job system, executable manifest parser, Server–Agent UDS transport, transfer/restore/launcher behavior, or Web health dashboard. The schema and example manifest are present as documentation artifacts; the Phase 0 checks only confirm that both files are syntactically valid JSON. These runtime capabilities are deferred according to `docs/ROADMAP.md`.
-
-For the exact implemented scope, verification, and known limitations, see `docs/PHASE_0_REPORT.md`.
+El flujo de producto pendiente se define en [MVP](docs/MVP.md), con responsabilidades y límites en [Arquitectura](docs/ARCHITECTURE.md) y [ADR](docs/ADR/).
 
 ## Legal and provider boundary
 

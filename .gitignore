@@ -10,3 +10,19 @@ config/homepage/logs/
 node_modules/
 apps/web/dist/
 coverage/
+
+# Local-only planning, phase reports, audits, and working notes
+/docs/phase*/
+/docs/post-phase*/
+/docs/PHASE_*_REPORT.md
+/docs/PHASE_*_PLAN.md
+/odd/tasks/
+/docs/ROADMAP.md
+/docs/AUDIT_DECISIONS.md
+/ANTIGRAVITY_AUDIT_PROMPT.md
+/AGY_REVIEW_PROMPT.md
+/CODEX_START_PROMPT.md
+/FOUNDATION_CHECKLIST.md
+/MIGRATION_NOTES.md
+/00_README.md
+/INSTALL_NOTES.md
