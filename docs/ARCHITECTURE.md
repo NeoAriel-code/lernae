@@ -1,13 +1,14 @@
-# ARCHITECTURE.md — Lernae Foundation Architecture
+# ARCHITECTURE.md — Arquitectura de Lernae
 
-Version: 0.2
-Status: Approved for Phase 0 after independent audit
+Version: 0.3
+
+Contratos y límites de la implementación actual. La visión del producto no equivale a aceptación en vivo de todas las integraciones; el [README](../README.md) resume las capacidades disponibles y su configuración.
 
 ## 1. Architecture goal
 
 Lernae must present one stable product while delegating specialist work to replaceable external systems.
 
-The first implementation targets a single Linux machine running CachyOS/Omarchy, while preserving a path toward ordinary Docker-based self-hosting.
+La implementación actual apunta a una sola máquina Linux, con Server y Agent separados por un socket Unix. Los servicios externos pueden ejecutarse con Compose; ese archivo no empaqueta Server, Agent ni Web.
 
 ## 2. Major components
 
@@ -30,7 +31,7 @@ The first implementation targets a single Linux machine running CachyOS/Omarchy,
                     │ Job Orchestrator   │
                     │ Provider Registry  │
                     └───────┬────────────┘
-                            │ local authenticated API
+                            │ local Unix Domain Socket (UDS)
                     ┌───────▼────────────┐
                     │   Lernae Agent     │
                     │        Go          │
@@ -93,6 +94,17 @@ A **provider** is an adapter that translates between Lernae concepts and an exte
 
 The categories below are **capabilities, not mutually exclusive provider classes**. One concrete integration may implement several capabilities. For example, a Jellyfin integration could provide inventory plus metadata, while RomM could provide inventory plus metadata mappings. Core depends on small capability interfaces rather than a single monolithic `Provider` type.
 
+### User-facing integration principles
+
+| Principle | Product consequence |
+|---|---|
+| **Standard path first** | Offer a coherent supported setup before specialist configuration. A future managed companion stack is not implemented by the current Prowlarr slice. |
+| **Modular by capability** | Enable only the needed capability; configuring discovery does not grant execution, inventory or metadata authority. |
+| **Escape hatches for enthusiasts** | Custom mode can use an existing supported external service. Custom and a future managed Standard companion use the same adapter, not separate business logic. |
+| **No provider owns the product model** | Lernae owns Universe, Work, Edition and Asset identities. External records supply evidence or possibilities, never redefine those concepts. |
+
+These principles follow [ADR-003](ADR/ADR-003-provider-architecture.md). They do not require a universal plugin framework or automatic management of every external application.
+
 Provider capabilities:
 
 ### Metadata providers
@@ -114,6 +126,8 @@ Responsibilities:
 - tell Lernae what the user already has;
 - map external library entries to Lernae Works/Editions/Assets.
 
+The current Server defaults to `manifest` source selection; when a Manifest path is configured, `ManifestInventorySource` implements both `InventorySource` and `StorageSource`. Optional `RomMInventorySource` implements read-only inventory matching for an exact IGDB Work identity and the supported GameCube disc-image shape; it deliberately does not implement `StorageSource` or turn RomM file paths into trusted restore locations. `LERNAE_INVENTORY_SOURCE` selects one source per Server run (`manifest` by default or explicit `romm`); results are not federated. Therefore RomM-only selection does not support restore or PLAY.
+
 ### Acquisition providers
 
 Examples: Radarr, Sonarr, book/media managers, storefront integrations or other user-configured lawful acquisition systems.
@@ -124,7 +138,21 @@ Responsibilities:
 - expose job status;
 - report resulting assets.
 
-Core does not encode source-specific acquisition behavior.
+Core does not encode source-specific acquisition behavior. Discovery, exact selection, resolution and productive execution remain separate capability boundaries.
+
+#### Capacidades actuales: Prowlarr y qBittorrent
+
+El proveedor opcional `prowlarr` aporta **Discovery**: busca el título exacto de una Work existente en el contexto de su Edition, transforma releases en Candidates neutrales y permite una selección manual inmutable. No crea identidades de catálogo ni Assets. Sin qBittorrent configurado, la composición conserva únicamente Discovery y no autoriza la ejecución de esa selección.
+
+Con Prowlarr y qBittorrent habilitados y configurados, Server registra un **`ProwlarrExecutionResolver` separado**, que reabre y revalida el registro exacto, y el runner **`QBittorrent`** para el despacho productivo. La reserva de ejecución se guarda antes de cualquier fetch remoto o add; después, el runner vuelve a revalidar el localizador, obtiene un torrent acotado o el magnet oficial soportado y autentica una sesión privada del cliente. Exige qBittorrent `v5.0.0` y Web API `2.11.2` en tiempo de ejecución. La aceptación se persiste solo después de confirmar el hash esperado y el tag único asociado a la reserva duradera. Una respuesta ambigua consume la reserva sin repetir el add, adoptar duplicados ni cambiar de release.
+
+El runner observa progreso y completitud mediante estado y contadores consistentes del cliente. Esta confirmación no verifica independientemente los bytes descargados, no promueve contenido a caché Agent ni registra automáticamente Assets o ubicaciones de inventario. Detener Server cancela la observación, no el torrent externo. Tras reiniciar, los Jobs activos se reconcilian como interrumpidos; no hay redispatch ni reanudación automática de la observación.
+
+`make configure-prowlarr` guarda habilitación y endpoint canónico HTTP(S), con API key mediante entrada oculta. `make configure-qbittorrent` guarda habilitación, endpoint y usuario, y recoge la contraseña oculta en el almacén separado de credenciales. Ambos están deshabilitados por defecto; `make configure-status` muestra solo booleanos de estos proveedores. Reiniciar aplica los cambios; ni la construcción ni el arranque sondean los servicios. Discovery, resolución, despacho, inventario y lanzamiento siguen siendo capacidades distintas; esto no certifica aceptación en vivo.
+
+The adapter uses basic search with conservative categories for games, video, literature and audio. It does not infer movie/TV/music subtypes from the open-ended WorkType, embellish titles with guessed Edition/platform/year metadata, or rank/select automatically. Optional size uses the existing neutral Candidate label. Public responses contain no GUID, proxy URL, protected link, key or private lookup token.
+
+Las instantáneas privadas exactas se guardan bajo la configuración XDG existente, separadas de las credenciales: directorios del proveedor con permisos `0700` y archivos inmutables con permisos `0600`. Un token opaco permite reabrir el registro exacto tras un reinicio sin repetir la búsqueda. Los metadatos del proxy de la misma instancia, sin clave, solo se capturan cuando pueden reconocerse de forma segura; la ausencia de localizadores opcionales no descarta un candidato. Un registro perdido o modificado, o un endpoint configurado distinto, invalida la consulta exacta en vez de sustituir el resultado. La retención y la ejecución son contratos separados de Discovery. Este límite de capacidad no certifica aceptación en vivo ni publicación de una integración.
 
 ### Storage capabilities
 
@@ -242,7 +270,7 @@ RESTORING
   ↓ Agent writes to staging
 LOCAL_STAGING
   ↓ verify + atomic rename
-LOCAL_ARCHIVED     local + remote copy
+LOCAL_READY        verified local copy; the remote archive remains available
 ```
 
 `LOCAL_STAGING` is never launchable. A partially transferred file must never appear at the final cache path.
@@ -388,7 +416,7 @@ lernae/
 ├── deploy/
 ├── tests/
 ├── AGENTS.md
-└── docker-compose.yml
+└── compose.yml
 ```
 
 This is a monorepo: one repository contains Web, Server, Agent and docs so changes can be coordinated atomically.
@@ -409,8 +437,8 @@ A user-facing Activity page later translates those events into plain language.
 
 Core business concepts must not import concrete provider packages directly.
 
-Core depends on small capability interfaces/contracts. A concrete external integration may implement one or many of them; it must not be forced into a single exclusive provider category. Shared clients/configuration may be reused inside one integration without duplicating adapters.
+Core depends on small capability interfaces/contracts. A concrete external integration may implement one or many of them; it must not be forced into a single exclusive provider category. Shared clients/configuration may be reused inside one integration without duplicating adapters. Supported Custom instances and an eventual managed Standard stack must share the same capability adapter; deployment ownership must not fork core behavior. Current Prowlarr support manages neither Compose nor the external service.
 
-Universe resolution is deliberately simple/manual/rule-assisted until Phase 3. Do not attempt broad automatic cross-media entity clustering during Foundation or the Soulcalibur slice.
+La resolución de universos conserva evidencia, procedencia y revisión manual. La expansión de relaciones Wikidata es explícita y acotada; no permite clustering libre entre medios ni fusión automática de identidades por similitud de título.
 
 This is the most important architecture rule for long-term maintainability.

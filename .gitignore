@@ -9,9 +9,11 @@ config/homepage/logs/
 # Generated development and build outputs
 node_modules/
 apps/web/dist/
+build/
 coverage/
 
-# Local-only planning, phase reports, audits, and working notes
+# Documentación local de fases, auditorías, planificación y configuración
+# Ignorar no retira archivos ya rastreados del índice ni borra sus copias locales.
 /docs/phase*/
 /docs/post-phase*/
 /docs/PHASE_*_REPORT.md
@@ -26,3 +28,13 @@ coverage/
 /MIGRATION_NOTES.md
 /00_README.md
 /INSTALL_NOTES.md
+
+# Herramientas y referencias privadas locales (no forman parte del producto)
+/.agents/
+/.pi/
+/.playwright-cli/
+/.atl/
+/.stitch/
+/plugin/
+/visual_reference_multimedia_v1.png
+/compose.yml.bak

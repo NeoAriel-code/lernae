@@ -1,6 +1,6 @@
 # ADR-001 — Go Server/Agent + React/TypeScript Web
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 

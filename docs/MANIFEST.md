@@ -6,7 +6,7 @@ Version: 1
 
 The first Soulcalibur vertical slice must prove Lernae itself without depending on a specific RomM API version or a running external service. `ManifestInventorySource` is therefore the deterministic baseline inventory adapter.
 
-It is intentionally small and is not the intended long-term user experience. RomM and future inventory systems implement the same inventory capability later.
+It is intentionally small and is not the intended long-term user experience. `ManifestInventorySource` implements the shared `InventorySource` and `StorageSource` capabilities; RomM and future integrations can implement the same capabilities later.
 
 ## Minimal shape
 
@@ -55,5 +55,10 @@ It is intentionally small and is not the intended long-term user experience. Rom
 - `locations` may contain local or remote locations, but a staging path must never be declared as ready/local inventory.
 - secrets/credentials are never stored in the manifest; `provider` references configured provider state.
 - paths/locators are data, never shell fragments.
+- Manifest v1 has no canonical Lernae Edition ID. The Phase 0.5 adapter uses the source-local `<platform>:<format>` key when the shared inventory capability queries by Edition ID; this key is not a persisted catalog identity.
 
 A JSON Schema is provided at `schemas/inventory-manifest.schema.json` for validation.
+
+## Capability queries
+
+`ManifestInventorySource.AssetsForEdition` provides the inventory query. Its `StorageSource.LocationsForAsset(ctx, assetID)` implementation returns the manifest's locations for that exact Asset as typed `domain.AssetLocation` values. The manifest's `id`, `provider`, `locator`, and `class` map to `AssetID`, `StorageProviderID`, `Locator`, and `LocationClass`; a missing Asset returns an empty slice. Manifest read or validation errors are returned to the caller. This is location metadata only: it does not access storage or transfer files.

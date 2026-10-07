@@ -1,4 +1,4 @@
-name: Foundation checks
+name: Runtime foundation checks
 
 on:
   push:
@@ -35,8 +35,8 @@ jobs:
       - name: Type-check Web
         run: make typecheck
 
-      - name: Test
+      - name: Runtime, SQLite, UDS, and manifest tests
         run: make test
 
-      - name: Build
+      - name: Build Server, Agent, and Web
         run: make build

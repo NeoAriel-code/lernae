@@ -1,30 +1,47 @@
+# Servicios externos opcionales; Server, Agent y Web se ejecutan con make dev.
+# Los directorios media/* deben existir antes de iniciar los servicios que los usan.
 services:
   lernae-kavita:
     image: jvmilazz0/kavita:latest
     container_name: lernae-kavita
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     environment:
-      - TZ=America/Santiago
+      - TZ=${TZ:-Etc/UTC}
     volumes:
-      - /home/neoariel/Lernae/data/kavita:/kavita/config
-      - /home/neoariel/Lernae/media/Mangas:/manga:ro
-      - /home/neoariel/Lernae/media/Libros:/books:ro
-      - /home/neoariel/Lernae/media/Novelas:/novelas:ro
+      - ${LERNAE_DATA_DIR:-./data}/kavita:/kavita/config
+      - type: bind
+        source: ${LERNAE_MEDIA_DIR:-./media}/Mangas
+        target: /manga
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LERNAE_MEDIA_DIR:-./media}/Libros
+        target: /books
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LERNAE_MEDIA_DIR:-./media}/Novelas
+        target: /novelas
+        read_only: true
+        bind:
+          create_host_path: false
 
   lernae-homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: lernae-homepage
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
-      - TZ=America/Santiago
-      - HOMEPAGE_ALLOWED_HOSTS=*
+      - TZ=${TZ:-Etc/UTC}
+      - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS:-localhost:3000,127.0.0.1:3000}
     volumes:
-      - /home/neoariel/Lernae/config/homepage:/app/config
-      - /home/neoariel/Lernae/config/homepage/images:/app/public/images
+      - ./config/homepage:/app/config
+      - ./config/homepage/images:/app/public/images
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   lernae-suwayomi:
@@ -32,56 +49,72 @@ services:
     container_name: lernae-suwayomi
     restart: unless-stopped
     ports:
-      - "4567:4567"
+      - "127.0.0.1:4567:4567"
     environment:
-      - TZ=America/Santiago
+      - TZ=${TZ:-Etc/UTC}
     volumes:
-      - /home/neoariel/Lernae/data/suwayomi:/home/suwayomi/.local/share/Tachidesk
-      - /home/neoariel/Lernae/media/Mangas:/downloads
+      - ${LERNAE_DATA_DIR:-./data}/suwayomi:/home/suwayomi/.local/share/Tachidesk
+      - type: bind
+        source: ${LERNAE_MEDIA_DIR:-./media}/Mangas
+        target: /downloads
+        bind:
+          create_host_path: false
 
   lernae-qbittorrent:
-    image: ghcr.io/linuxserver/qbittorrent:latest
+    # El runner exige qBittorrent v5.0.0 / Web API 2.11.2. latest no lo garantiza.
+    # Selecciona una imagen compatible mediante LERNAE_QBITTORRENT_IMAGE.
+    image: ${LERNAE_QBITTORRENT_IMAGE:-ghcr.io/linuxserver/qbittorrent:latest}
     container_name: lernae-qbittorrent
     restart: unless-stopped
     ports:
-      - "8085:8085"
+      - "127.0.0.1:8085:8085"
       - "6881:6881"
       - "6881:6881/udp"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Santiago
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
       - WEBUI_PORT=8085
       - TORRENTING_PORT=6881
     volumes:
-      - /home/neoariel/Lernae/data/qbittorrent:/config
-      - /home/neoariel/Lernae/downloads:/downloads
+      - ${LERNAE_DATA_DIR:-./data}/qbittorrent:/config
+      # Descargas locales del cliente, NO un mount remoto ni caché del Agent.
+      # El runner observa hash/tag y estado; no entrega rutas al Server.
+      - ${LERNAE_DOWNLOADS_DIR:-./downloads}:/downloads
 
   lernae-prowlarr:
     image: ghcr.io/linuxserver/prowlarr:latest
     container_name: lernae-prowlarr
     restart: unless-stopped
     ports:
-      - "9696:9696"
+      - "127.0.0.1:9696:9696"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Santiago
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
-      - /home/neoariel/Lernae/data/prowlarr:/config
+      - ${LERNAE_DATA_DIR:-./data}/prowlarr:/config
 
   lernae-readarr:
     image: lscr.io/linuxserver/readarr:0.4.18-develop
     container_name: lernae-readarr
     restart: unless-stopped
     ports:
-      - "8787:8787"
+      - "127.0.0.1:8787:8787"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Santiago
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
     volumes:
-      - /home/neoariel/Lernae/data/readarr:/config
-      - /home/neoariel/Lernae/downloads:/downloads
-      - /home/neoariel/Lernae/media/Libros:/books
-      - /home/neoariel/Lernae/media/Novelas:/novelas
+      - ${LERNAE_DATA_DIR:-./data}/readarr:/config
+      - ${LERNAE_DOWNLOADS_DIR:-./downloads}:/downloads
+      - type: bind
+        source: ${LERNAE_MEDIA_DIR:-./media}/Libros
+        target: /books
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LERNAE_MEDIA_DIR:-./media}/Novelas
+        target: /novelas
+        bind:
+          create_host_path: false

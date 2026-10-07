@@ -2,6 +2,10 @@
 
 Version: 0.2
 
+Este documento define el alcance y los criterios del MVP; no certifica su aceptación en vivo. El [README](../README.md) describe las capacidades de la implementación actual y cómo configurarlas, incluidas las que van más allá de esta primera prueba.
+
+La primera prueba usa Manifest para inventario y ubicaciones de almacenamiento. RomM es opcional y solo aporta inventario: no es una fuente de restore/PLAY.
+
 ## 1. MVP definition
 
 The MVP is not “all of Lernae with fewer features”.
@@ -33,7 +37,7 @@ Soulcalibur II
   ↓ choose GameCube
 InventorySource
   ↓
-manifest baseline (RomM adapter may also provide same mapping)
+ManifestInventorySource (default; inventory + storage locations)
   ↓
 remote AssetLocation
   ↓ PLAY
@@ -59,6 +63,8 @@ session ends
   ↓
 History updated
 ```
+
+`RomMInventorySource` is an optional inventory-only selection; because it provides no trusted storage locations, RomM-only selection does not continue through the restore/PLAY flow above.
 
 Server owns orchestration and durable Job state. Agent owns the physical local cache and transfer execution. A partial `.staging` file is never launchable.
 
@@ -92,9 +98,9 @@ Must provide:
 
 ### Inventory
 
-The **required baseline** is `ManifestInventorySource`, backed by the versioned local manifest defined in `docs/MANIFEST.md`. This makes the Soulcalibur proof deterministic, testable offline and independent of RomM API changes.
+La **base obligatoria** es `ManifestInventorySource`, respaldada por el manifiesto local versionado definido en [MANIFEST.md](MANIFEST.md). Aporta tanto la correspondencia de inventario como la consulta de ubicaciones de almacenamiento: permite una prueba Soulcalibur determinista, verificable sin red e independiente de cambios en la API de RomM.
 
-`RomMInventorySource` is the first real external inventory adapter and should implement the same capability interface. It may be added during Phase 1 once the manifest path proves the end-to-end flow, but RomM availability must not gate the first acceptance test.
+`RomMInventorySource` is an optional, read-only inventory adapter for an exact IGDB identity and the bounded GameCube disc-image slice. The Server selects one inventory source explicitly; it does not merge Manifest and RomM results. RomM does not implement `StorageSource`, and its local file paths are not trusted restore locators, so a RomM-only selection can report inventory but cannot restore or play an item. RomM is not required for the Manifest-backed acceptance path.
 
 The manifest is a development/bootstrap inventory source, not the intended final user experience.
 

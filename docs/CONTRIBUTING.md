@@ -81,6 +81,10 @@ Agents must:
 
 ## 8. Commit/PR style
 
+La documentación pública conserva producto, arquitectura, modelo de datos, contratos y ADR. Los registros de fases, auditorías, planes, tareas y notas locales de configuración quedan fuera de Git y no deben enlazarse desde referencias públicas. Si contienen una decisión vigente, resume su contrato en el documento público correspondiente, sin trasladar el historial ni afirmar aceptación.
+
+Las reglas de `.gitignore` no eliminan archivos ya rastreados ni sus copias físicas. El mantenimiento del índice requiere autorización independiente; conserva siempre los documentos locales y el trabajo pendiente.
+
 Prefer small, coherent changes.
 
 Good:

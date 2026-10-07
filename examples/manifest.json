@@ -5,7 +5,7 @@
       "id": "soulcalibur2-gamecube",
       "work": {
         "title": "Soulcalibur II",
-        "external_ids": {}
+        "external_ids": {"igdb": "1565"}
       },
       "edition": {
         "platform": "gamecube",
@@ -24,7 +24,7 @@
         {
           "class": "archive",
           "provider": "rclone",
-          "locator": "gdrive:games/gamecube/Soulcalibur II.iso"
+          "locator": "testremote:games/gamecube/Soulcalibur II.iso"
         }
       ]
     }

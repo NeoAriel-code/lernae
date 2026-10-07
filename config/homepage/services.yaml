@@ -1,22 +1,23 @@
+# Ejemplo local: estos enlaces no comprueban disponibilidad ni integración.
 - Bibliotecas:
     - RomM:
         icon: romm.png
-        href: "http://192.168.3.44:8080"
-        description: "Catálogo de Juegos y Emuladores"
+        href: "http://localhost:8080"
+        description: "Inventario opcional; instancia externa no incluida en Compose"
         server: local-docker
         container: romm
         showStats: true
     - Kavita:
         icon: kavita.png
-        href: "http://192.168.3.44:5000"
-        description: "Mangas, Cómics y Libros"
+        href: "http://localhost:5000"
+        description: "Mangas, cómics y libros"
         server: local-docker
         container: lernae-kavita
         showStats: true
-    - Suwayomi (Descargador):
+    - Suwayomi:
         icon: suwayomi.png
-        href: "http://192.168.3.44:4567"
-        description: "Descarga automática de mangas a Drive"
+        href: "http://localhost:4567"
+        description: "Servicio externo de manga"
         server: local-docker
         container: lernae-suwayomi
         showStats: true
@@ -24,33 +25,32 @@
 - Automatización:
     - Readarr:
         icon: readarr.png
-        href: "http://192.168.3.44:8787"
-        description: "Buscador y Gestor de Libros y Novelas"
+        href: "http://localhost:8787"
+        description: "Gestor externo de libros"
         server: local-docker
         container: lernae-readarr
         showStats: true
     - Prowlarr:
         icon: prowlarr.png
-        href: "http://192.168.3.44:9696"
-        description: "Indexador de fuentes y repositorios"
+        href: "http://localhost:9696"
+        description: "Descubrimiento de fuentes configuradas por el usuario"
         server: local-docker
         container: lernae-prowlarr
         showStats: true
     - qBittorrent:
         icon: qbittorrent.png
-        href: "http://192.168.3.44:8085"
-        description: "Descargador de staging local"
+        href: "http://localhost:8085"
+        description: "Cliente de descargas locales"
         server: local-docker
         container: lernae-qbittorrent
         showStats: true
 
 - Infraestructura:
-    - Google Drive (Lernae):
+    - Google Drive:
         icon: google-drive.png
         href: "https://drive.google.com/drive/u/0/folders"
-        description: "Carpeta madre en la nube"
-    - Tailscale Mesh:
+        description: "Almacenamiento opcional; sin mount preconfigurado"
+    - Tailscale:
         icon: tailscale.png
         href: "https://login.tailscale.com/admin/machines"
-        description: "Red privada (IP: 100.74.205.42)"
-
+        description: "Consola externa de administración"
