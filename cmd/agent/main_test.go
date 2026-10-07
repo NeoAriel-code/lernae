@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -107,15 +109,6 @@ func TestProductionAgentStartsWithoutRcloneAndFailsRestoreWithoutLeakingSource(t
 
 func TestProductionAgentRestoreWritesToConfiguredStagingPath(t *testing.T) {
 	root := t.TempDir()
-	rcloneDir := filepath.Join(root, "synthetic-bin")
-	if err := os.MkdirAll(rcloneDir, 0o700); err != nil {
-		t.Fatal(err)
-	}
-	rcloneStub := "#!/bin/sh\nif [ \"$1\" = \"lsjson\" ]; then\n printf '{\\\"IsDir\\\":false,\\\"Size\\\":4}'\n exit 0\nfi\nexit 1\n"
-	if err := os.WriteFile(filepath.Join(rcloneDir, "rclone"), []byte(rcloneStub), 0o700); err != nil {
-		t.Fatal(err)
-	}
-	t.Setenv("PATH", rcloneDir)
 	for _, test := range []struct {
 		name        string
 		cachePath   string
@@ -133,6 +126,46 @@ func TestProductionAgentRestoreWritesToConfiguredStagingPath(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
+			rcloneDir := filepath.Join(root, filepath.Base(test.cachePath)+"-synthetic-bin")
+			if err := os.MkdirAll(rcloneDir, 0o700); err != nil {
+				t.Fatal(err)
+			}
+			markerPath := filepath.Join(rcloneDir, "copy-observed")
+			if err := syscall.Mkfifo(markerPath, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			// Holding both ends makes opening/writing the FIFO nonblocking, even
+			// if copy never starts. Only one short acknowledgement is written.
+			marker, err := os.OpenFile(markerPath, os.O_RDWR, 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() {
+				if err := marker.Close(); err != nil {
+					t.Errorf("close copy observation marker: %v", err)
+				}
+			})
+			copyReleased := false
+			releaseCopy := func() {
+				if copyReleased {
+					return
+				}
+				copyReleased = true
+				if _, err := marker.WriteString("observed\n"); err != nil {
+					t.Errorf("signal copy observation: %v", err)
+				}
+			}
+			// read is a shell builtin: no sleep/mkdir utilities or busy loop on
+			// the deliberately restricted PATH. Copy still fails, but only after
+			// the client has inspected staging (including an inspection failure).
+			rcloneStub := "#!/bin/sh\nif [ \"$1\" = \"lsjson\" ]; then\n printf '{\\\"IsDir\\\":false,\\\"Size\\\":4}'\n exit 0\nfi\nif [ \"$1\" = \"copyto\" ]; then\n IFS= read -r observed < \"$LERNAE_TEST_COPY_OBSERVED\"\nfi\nexit 1\n"
+			if err := os.WriteFile(filepath.Join(rcloneDir, "rclone"), []byte(rcloneStub), 0o700); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv("PATH", rcloneDir)
+			t.Setenv("LERNAE_TEST_COPY_OBSERVED", markerPath)
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			t.Cleanup(cancel)
 			settings := config.Agent{
 				SocketPath:  filepath.Join(root, filepath.Base(test.cachePath)+"-run", "agent.sock"),
 				CachePath:   test.cachePath,
@@ -144,6 +177,20 @@ func TestProductionAgentRestoreWritesToConfiguredStagingPath(t *testing.T) {
 			}
 			serveResult := make(chan error, 1)
 			go func() { serveResult <- server.Serve() }()
+			t.Cleanup(func() {
+				// Also release/cancel on assertion failure or an absent callback.
+				releaseCopy()
+				cancel()
+				if err := server.Close(); err != nil {
+					t.Errorf("close Agent server: %v", err)
+				}
+				if err := <-serveResult; err != nil {
+					t.Errorf("Agent Serve after close: %v", err)
+				}
+				if err := cache.Close(); err != nil {
+					t.Errorf("close Agent cache: %v", err)
+				}
+			})
 			client := agent.UDSClient{SocketPath: settings.SocketPath, Timeout: time.Second}
 			request := agent.RestoreAsset{
 				JobID: "job-configured-staging",
@@ -153,34 +200,45 @@ func TestProductionAgentRestoreWritesToConfiguredStagingPath(t *testing.T) {
 					AssetID: "asset-configured-staging", StorageProviderID: "rclone", Locator: "synthetic-remote:game.iso", LocationClass: "archive",
 				},
 			}
-			var observedStagingFile bool
+			var copyingCallbackObserved, observedStagingFile bool
 			var stagingObservationErr error
-			_, restoreErr := client.RestoreAsset(context.Background(), request, func(event agent.RestoreProgress) {
+			_, restoreErr := client.RestoreAsset(ctx, request, func(event agent.RestoreProgress) {
 				if event.Phase != agent.RestorePhaseCopying {
 					return
 				}
+				copyingCallbackObserved = true
+				defer releaseCopy()
+				// Model delayed client delivery: emitting progress does not acknowledge observation.
+				time.Sleep(25 * time.Millisecond)
 				stageFile := filepath.Join(settings.StagingPath, request.JobID, request.Parts[0].Filename)
 				info, statErr := os.Lstat(stageFile)
-				if statErr != nil || !info.Mode().IsRegular() {
-					stagingObservationErr = errors.New("restore did not create its private staging file at the configured path")
+				if statErr != nil {
+					stagingObservationErr = fmt.Errorf("inspect configured staging file: %w", statErr)
+					return
+				}
+				if !info.Mode().IsRegular() {
+					stagingObservationErr = fmt.Errorf("configured staging file is not regular: %v", info.Mode())
 					return
 				}
 				observedStagingFile = true
 			})
 			if restoreErr == nil {
-				t.Fatal("restore succeeded without the intentionally unavailable rclone executable")
+				t.Fatal("restore succeeded despite the intentionally failing rclone copy")
+			}
+			if !copyingCallbackObserved {
+				t.Fatalf("restore delivered no Copying callback: restore error = %v, context error = %v", restoreErr, ctx.Err())
 			}
 			if !observedStagingFile || stagingObservationErr != nil {
-				t.Fatalf("restore failed before creating staging data at %q: %v", settings.StagingPath, restoreErr)
+				t.Fatalf("Copying callback staging observation failed: %v; restore error = %v", stagingObservationErr, restoreErr)
 			}
-			if err := server.Close(); err != nil {
-				t.Errorf("close Agent server: %v", err)
+			if err := ctx.Err(); err != nil {
+				t.Fatalf("restore timed out instead of returning the synthetic copy failure: %v", err)
 			}
-			if err := <-serveResult; err != nil {
-				t.Errorf("Agent Serve after close: %v", err)
+			if _, err := os.Lstat(filepath.Join(settings.StagingPath, request.JobID)); !errors.Is(err, os.ErrNotExist) {
+				t.Fatalf("failed copy left Agent staging: %v", err)
 			}
-			if err := cache.Close(); err != nil {
-				t.Errorf("close Agent cache: %v", err)
+			if _, err := os.Lstat(filepath.Join(settings.CachePath, "assets", string(request.Asset.ID), request.Parts[0].Filename)); !errors.Is(err, os.ErrNotExist) {
+				t.Fatalf("failed copy created a final cache asset: %v", err)
 			}
 		})
 	}
