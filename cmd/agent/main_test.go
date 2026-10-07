@@ -158,7 +158,7 @@ func TestProductionAgentRestoreWritesToConfiguredStagingPath(t *testing.T) {
 			// read is a shell builtin: no sleep/mkdir utilities or busy loop on
 			// the deliberately restricted PATH. Copy still fails, but only after
 			// the client has inspected staging (including an inspection failure).
-			rcloneStub := "#!/bin/sh\nif [ \"$1\" = \"lsjson\" ]; then\n printf '{\\\"IsDir\\\":false,\\\"Size\\\":4}'\n exit 0\nfi\nif [ \"$1\" = \"copyto\" ]; then\n IFS= read -r observed < \"$LERNAE_TEST_COPY_OBSERVED\"\nfi\nexit 1\n"
+			rcloneStub := "#!/bin/sh\nif [ \"$1\" = \"lsjson\" ]; then\n printf '{\"IsDir\":false,\"Size\":4}'\n exit 0\nfi\nif [ \"$1\" = \"copyto\" ]; then\n IFS= read -r observed < \"$LERNAE_TEST_COPY_OBSERVED\"\nfi\nexit 1\n"
 			if err := os.WriteFile(filepath.Join(rcloneDir, "rclone"), []byte(rcloneStub), 0o700); err != nil {
 				t.Fatal(err)
 			}
